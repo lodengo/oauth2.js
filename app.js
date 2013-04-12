@@ -31,12 +31,35 @@ app.configure('development', function(){
 var weibo2 = require('./setting').weibo2;
 weibo2.route(app);
 weibo2.setAuthorizationCallback(function(req, res, error, data){
-  res.send('<a href="/statuses/public_timeline">/statuses/public_timeline</a> </p><a href="/statuses/friends_timeline">/statuses/friends_timeline</a> </p><a href="/statuses/home_timeline">/statuses/home_timeline</a> </p>');
+	if(error){
+		res.json(data);
+	}
+	else{
+		res.send('<a href="/statuses/public_timeline">/statuses/public_timeline</a> </p><a href="/statuses/friends_timeline">/statuses/friends_timeline</a> </p><a href="/statuses/home_timeline">/statuses/home_timeline</a> </p>');
+	}
 });
 
+var douban = require('./setting').douban;
+douban.route(app);
+douban.setAuthorizationCallback(function(req, res, error, data){
+	if(error){
+		res.json(data);
+	}
+	else{
+		res.send('<a href="/movie/nowplaying">/movie/nowplaying</a> </p><a href="/movie/coming">/movie/coming</a> ');
+	}
+});
 
 app.get('/', function(req, res){	
+	res.send('<a href="/weibo">weibo</a></p><a href="/douban">douban</a>');
+});
+
+app.get('/weibo', function(req, res){
 	weibo2.obtainingAuthorization(req, res);
+});
+
+app.get('/douban', function(req, res){
+	douban.obtainingAuthorization(req, res);
 });
 
 app.get('/statuses/public_timeline', function(req, res){
@@ -51,6 +74,18 @@ app.get('/statuses/friends_timeline', function(req, res){
 });
 app.get('/statuses/home_timeline', function(req, res){
 	weibo2.accessProtectedResource(req, res, 'GET', 'https://api.weibo.com/2/statuses/home_timeline.json', {}, function(error, data){
+		res.json(data);
+	});
+});
+
+app.get('/movie/nowplaying', function(req, res){
+	douban.accessProtectedResource(req, res, 'GET', 'https://api.douban.com/v2/movie/nowplaying', {}, function(error, data){
+		res.json(data);
+	});
+});
+
+app.get('/movie/coming', function(req, res){
+	douban.accessProtectedResource(req, res, 'GET', 'https://api.douban.com/v2/movie/coming', {}, function(error, data){
 		res.json(data);
 	});
 });
