@@ -1,0 +1,4 @@
+  
+var OAuth2 = require('./OAuth2').OAuth2; 
+
+exports.weibo2 = new OAuth2('client_id', 'clientSecret', 'https://api.weibo.com', 'http://yourhost/weibo/callback', '/oauth2/authorize', '/oauth2/access_token'); 
