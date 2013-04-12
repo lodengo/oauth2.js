@@ -3,7 +3,7 @@ var querystring= require('querystring'),
     https= require('https'),
     http= require('http'),
     URL= require('url');
-  
+	
 function OAuth2(clientId, clientSecret, baseSite, redirectUri, authorizePath, accessTokenPath, storeTokenInSession, accessTokenName, authMethod, useAuthorizationHeaderForGET, authorizationGrantType, customHeaders){
 	this._clientId= clientId;
 	this._clientSecret= clientSecret;
@@ -19,6 +19,8 @@ function OAuth2(clientId, clientSecret, baseSite, redirectUri, authorizePath, ac
 	this._useAuthorizationHeaderForGET = useAuthorizationHeaderForGET;
 	this._authorizationGrantType = authorizationGrantType || 'authorization_code'; //authorization_code, implicit, password, client_credentials
 	this._customHeaders = customHeaders || {};
+	
+	this._tokenNamespace = URL.parse(this._baseSite).hostname;
 }
 
 OAuth2.prototype.route = function(app){
@@ -108,9 +110,14 @@ OAuth2.prototype._authorizeRedirectCallback = function(req, res){
 	var error = req.query.error;
 	var state = req.query.state;
 	if(error){
-		var error_description = req.query.error_description;
-		var error_uri = req.query.error_uri;
-		res.redirect(error_uri);
+		if(self._authorizationCallback){
+			self._authorizationCallback(req, res, req.query.error, req.query);
+		}
+		else{
+			var error_description = req.query.error_description;
+			var error_uri = req.query.error_uri;
+			res.redirect(error_uri);
+		}
 	}
 	else{
 		if(self._authorizationGrantType == 'authorization_code'){
@@ -148,9 +155,14 @@ OAuth2.prototype._accessTokenCallback = function(req, res, error, data){
 	}
 	
 	if(results.error){
-		var error_description = results.error_description;
-		var error_uri = results.error_uri;
-		res.redirect(error_uri);
+		if(self._authorizationCallback){
+			self._authorizationCallback(req, res, results.error, results);
+		}
+		else{
+			var error_description = results.error_description;
+			var error_uri = results.error_uri;
+			res.redirect(error_uri);
+		}
 	}
 	else{					
 		self._storeAccessToken(req, res, results);
@@ -163,20 +175,21 @@ OAuth2.prototype._accessTokenCallback = function(req, res, error, data){
 OAuth2.prototype._getAccessToken = function(req){
 	var self = this;
 	if(self._storeTokenInSession){
-		return req.session.access_token;
+		return req.session['access_token'][self._tokenNamespace];
 	}
 	else{
-		return req.cookies.access_token;
+		return req.cookies['access_token.'+self._tokenNamespace];
 	}
 }
 
 OAuth2.prototype._storeAccessToken = function(req, res, access_token){
 	var self = this;
+	
 	if(self._storeTokenInSession){
-		req.session.access_token = access_token;
+		req.session['access_token'][self._tokenNamespace] = access_token;
 	}
 	else{
-		res.cookie('access_token', access_token);
+		res.cookie('access_token.'+self._tokenNamespace, access_token);
 	}
 }
 
