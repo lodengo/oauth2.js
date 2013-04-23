@@ -1,6 +1,33 @@
-  
-var OAuth2 = require('./OAuth2').OAuth2; 
+exports.weibo_conf = {
+  clientId: '380581115'
+	, clientSecret: '9e25f899a6b71a8b42ad03faf6ca397e'
+	, authorizationEndpoint: 'https://api.weibo.com/oauth2/authorize'
+	, tokenEndpoint : 'https://api.weibo.com/oauth2/access_token'
+	, redirectUri: 'http://www.tcloud.com/weibo/callback'
+	, accessTokenName: 'access_token'
+	, useAuthorizationHeaderForGET: false
+	, authMethod: 'Bearer'
+	, storeTokenInSession: false
+	, authorizationGrantType: 'authorization_code' //'implicit', 'password', 'client_credentials'
+	, clientAuthenticationUseBasic: true
+	, customHeaders: {}
+	, authorizationCallback: function(req, res, error, result){res.json({error:error, result:result});}
+	
+};
 
-exports.weibo2 = new OAuth2('client_id', 'clientSecret', 'https://api.weibo.com', 'http://yourhost/weibo/callback', '/oauth2/authorize', '/oauth2/access_token');
-
-exports.douban = new OAuth2('clinetid', 'clientsecret', 'https://www.douban.com/service', 'http://yourhost/douban/callback', '/auth2/auth', '/auth2/token');
+exports.douban_conf = {
+	clientId: '099f487ffe53a2361cddd97ffafae6a2'
+	, clientSecret: '154e3c7c0b7d263c'
+	, authorizationEndpoint: 'https://www.douban.com/service/auth2/auth'
+	, tokenEndpoint : 'https://www.douban.com/service/auth2/token'
+	, redirectUri: 'http://www.tcloud.com/douban/callback'
+	, accessTokenName: 'access_token'
+	, useAuthorizationHeaderForGET: false
+	, authMethod: 'Bearer'
+	, storeTokenInSession: false
+	, authorizationGrantType: 'authorization_code' //'implicit', 'password', 'client_credentials'
+	, clientAuthenticationUseBasic: false
+	, customHeaders: {}
+	, authorizationCallback: function(req, res, error, result){res.json({error:error, result:result});}
+	
+};
