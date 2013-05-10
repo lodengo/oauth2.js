@@ -113,7 +113,7 @@ OAuth2.prototype.accessProtectedResource= function(req, res, method, url, params
 		headers= {};
 	}
 	
-	self._request(method, url, headers, params, access_token, function(error, data) {
+	self._request(method, url, headers, querystring.stringify(params), access_token, function(error, data) {
 		if(error){
 			callback(error, null);
 		}
